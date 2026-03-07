@@ -9,11 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct DashView:View {
-//    @Environment(\.modelContext)  private var context
-//    @Query var items: [Item]
+    @Environment(\.modelContext)  private var context
+    @Query var items: [Item]
     let columns = [ GridItem(.flexible()),GridItem(.flexible())]
     
-    let items:[Item]
+//    let items:[Item]
     @State var selectedItem: Item? = nil
     
     var viewModel = DashViewModel()
@@ -29,7 +29,7 @@ struct DashView:View {
             }
             .overlay(alignment: .center) {
                 if selectedItem != nil {
-//                    ProgressSelectionView(selectedItem: $selectedItem)
+                    ProgressSelectionView(selectedItem: selectedItem)
                 }
             }
             .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
@@ -44,8 +44,15 @@ struct ProgressSelectionView: View {
     var body: some View {
         VStack {
             Spacer()
-            Text(selectedItem?.name ?? "")
-                .fontWeight(.black)
+            HStack {
+                Button {
+                    selectedItem = nil
+                } label: {
+                    Image(systemName: "x.circle.fill")
+                }
+                Text(selectedItem?.name ?? "")
+                    .fontWeight(.black)
+            }
             Spacer()
             ProgressSelectionBodyView(item: selectedItem,showAlert: $showAlert)
             Spacer()

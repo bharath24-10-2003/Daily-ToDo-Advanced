@@ -9,11 +9,11 @@ import SwiftUI
 
 struct CustomTabView: View {
     
-//    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var theme: ThemeManager
     var body: some View {
         TabView {
             Tab {
-//                DashView()
+                DashView()
             } label: {
                 CustomTabLabelView(logo: "house", desc: "Dash Board")
             }
@@ -28,7 +28,7 @@ struct CustomTabView: View {
                 CustomTabLabelView(logo: "gearshape.2.fill", desc: "Settings")
             }
         }
-//        .colorScheme(theme.isDarkMode ? .dark : .light)
+        .colorScheme(theme.isDarkMode ? .dark : .light)
     }
 }
 
