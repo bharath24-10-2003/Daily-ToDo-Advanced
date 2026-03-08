@@ -40,10 +40,7 @@ struct ManageTopView: View {
             .tint(.green)
         }
     }
-    
-    func createNewItem() {
-        @State var item: Item = Item()
-    }
+
 }
 
 struct ManageBodyView: View {

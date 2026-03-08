@@ -42,6 +42,13 @@ final class Item {
         self.type = type
         self.currentDate = currentDate
     }
+    
+    func successRate() -> Double {
+        guard !dayWiseProgress.isEmpty else { return 0 }
+        
+        let total = dayWiseProgress.reduce(0) { $0 + $1.amountCompleted }
+        return total / Double(dayWiseProgress.count)
+    }
 }
 
 @Model

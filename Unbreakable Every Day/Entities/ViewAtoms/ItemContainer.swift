@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ItemContainer: View {
 
-    @State var item:Item
+    var item:Item
     
     var body: some View {
         VStack {
@@ -49,7 +49,7 @@ struct ItemContainer: View {
 }
 
 struct ProgressImageView:View {
-    @State var progress: Double
+    var progress: Double
     var body: some View {
         GeometryReader { geo in
             ZStack (alignment: .bottom){
@@ -74,7 +74,7 @@ struct ProgressImageView:View {
 }
 
 struct ProgressDetailsView:View {
-    @State var item: Item
+    var item: Item
     var body: some View {
         VStack (alignment: .leading){
             TextDesc(title: "Target", desc: String(item.target ?? 0.0))
@@ -85,8 +85,8 @@ struct ProgressDetailsView:View {
 }
 
 struct TextDesc: View {
-    @State var title: String
-    @State var desc: String
+    var title: String
+    var desc: String
     
     var body: some View {
         VStack (alignment: .leading){

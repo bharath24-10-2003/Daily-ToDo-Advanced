@@ -13,7 +13,6 @@ struct DashView:View {
     @Query var items: [Item]
     let columns = [ GridItem(.flexible()),GridItem(.flexible())]
     
-//    let items:[Item]
     @State var selectedItem: Item? = nil
     
     var viewModel = DashViewModel()
@@ -29,7 +28,7 @@ struct DashView:View {
             }
             .overlay(alignment: .center) {
                 if selectedItem != nil {
-                    ProgressSelectionView(selectedItem: selectedItem)
+                    ProgressSelectionView(selectedItem: $selectedItem)
                 }
             }
             .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
@@ -38,45 +37,63 @@ struct DashView:View {
 }
 
 struct ProgressSelectionView: View {
-    @State var selectedItem: Item?
+    @Binding var selectedItem: Item?
     @State var showAlert: Bool = false
     
     var body: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Button {
-                    selectedItem = nil
-                } label: {
-                    Image(systemName: "x.circle.fill")
+        if let item = selectedItem {
+            VStack {
+                Spacer()
+
+                HStack {
+                    Spacer()
+
+                    Button {
+                        selectedItem = nil
+                    } label: {
+                        Image(systemName: "x.circle.fill")
+                            .font(.system(size: 25))
+                    }
+                    .frame(width: 35)
+
+                    Text(item.name)
+                        .fontWeight(.black)
+                        .frame(width: 200)
+
+                    Spacer()
+                    Spacer()
                 }
-                Text(selectedItem?.name ?? "")
-                    .fontWeight(.black)
+
+                Spacer()
+
+                ProgressSelectionBodyView(item: item, showAlert: $showAlert)
+
+                Spacer()
+
+                ProgressActionsBottomView(item: item, showAlert: $showAlert)
+
+                Spacer()
             }
-            Spacer()
-            ProgressSelectionBodyView(item: selectedItem,showAlert: $showAlert)
-            Spacer()
-            ProgressActionsBottomView(item: selectedItem,showAlert: $showAlert)
-            Spacer()
+            .frame(width: 300, height: 300)
+            .glassEffect(.regular, in: RoundedRectangle(cornerSize: CGSize(width: 35, height: 35)))
         }
-        .frame(width: 300,height: 500,alignment: .center)
-        .glassEffect(.clear,in: RoundedRectangle(cornerSize: CGSize(width: 35, height: 35)))
     }
 }
 
 struct ProgressSelectionBodyView: View {
-    @State var item: Item?
+    var item: Item
     @Binding var showAlert: Bool
     @State var amount: Double? = nil
+
     var body: some View {
-        VStack (alignment: .leading) {
-            Text("Today's Progress: \(Int(item?.dailyUsage ?? 0.0))")
-            Text("Target: \(Int(item?.target ?? 0))")
-            Text("Today: ")
-            Text("LifeTime: \(Int(item?.overAllUsage.totalAmount ?? 0))")
-            Text("")
+        VStack(alignment: .leading, spacing: 12) {
+            InfoRow(title: "Today's Progress", value: "\(Int(item.dailyUsage))")
+            InfoRow(title: "Target", value: "\(Int(item.target ?? 0))")
+            InfoRow(title: "Completion Rate", value: "\(Int(item.successRate()))")
+            InfoRow(title: "LifeTime", value: "\(Int(item.overAllUsage.totalAmount))")
         }
-        .frame(width: 450,height: 300)
+        .frame(width: 250, height: 80)
+        .padding()
         .overlay {
             if showAlert {
                 VStack {
@@ -84,10 +101,10 @@ struct ProgressSelectionBodyView: View {
                     TextField("Enter Amount", value: $amount, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
-                        .frame(width: 150,height: 40,alignment: .center)
+                        .frame(width: 150, height: 40)
                         .glassEffect()
                     Spacer(minLength: 20)
-                    HStack{
+                    HStack {
                         Spacer()
                         Button("Cancel") {
                             amount = nil
@@ -96,36 +113,54 @@ struct ProgressSelectionBodyView: View {
                         .buttonStyle(.glass)
                         .tint(.red)
                         Spacer()
+
                         Button("Add") {
-                            item?.dailyUsage += amount ?? 0.0
+                            item.dailyUsage += amount ?? 0
                             amount = nil
                             showAlert = false
                         }
                         .buttonStyle(.glassProminent)
                         .tint(.blue)
+
                         Spacer()
                     }
+
                     Spacer()
                 }
-                .frame(width: 200,height: 120)
-                .background(in: RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .circular))
+                .frame(width: 200, height: 120)
+                .background(in: RoundedRectangle(cornerSize: CGSize(width: 20, height: 20)))
             }
         }
     }
 }
 
+struct InfoRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+        }
+    }
+}
+
 struct ProgressActionsBottomView: View {
-    @State var item: Item?
+    var item: Item
     @Binding var showAlert: Bool
 
     var body: some View {
         HStack {
             Button("Add Manually") {
-                showAlert = true            }
+                showAlert = true
+            }
             .buttonStyle(.glass)
-            if let singleProgressValue = item?.singleProgressValue {
-                Button("Add \(Int(singleProgressValue))\(item?.adaiMozhi ?? "")") {
-                    item?.dailyUsage += item?.singleProgressValue ?? 0.0
+
+            if let value = item.singleProgressValue {
+                Button("Add \(Int(value))\(item.adaiMozhi)") {
+                    item.dailyUsage += value
                 }
                 .buttonStyle(.glassProminent)
             }
@@ -134,38 +169,12 @@ struct ProgressActionsBottomView: View {
 }
 
 #Preview {
-    var dummyItem: Item = Item(name: "Dummy", target: 200, type: .increasing)
-    dummyItem.singleProgressValue = 200
-    dummyItem.adaiMozhi = "Rs"
-    return ProgressSelectionView(selectedItem: dummyItem)
+//    var dummyItem: Item = Item(name: "Dummy", target: 200, type: .increasing)
+//    dummyItem.singleProgressValue = 200
+//    dummyItem.adaiMozhi = "Rs"
+//    return ProgressSelectionView(selectedItem: dummyItem)
 }
 
-//#Preview {
-//    var dummyItems: [Item] = []
-//    var dummyItem: Item = Item(name: "Dummy", target: 200, type: .increasing)
-//    let dummyItem1: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem2: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem3: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem4: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem5: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem6: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem7: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem8: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    let dummyItem9: Item = Item(name: "dummy", target: 200, type: .increasing)
-//    
-//    dummyItem.dailyUsage = 150
-//    dummyItem.overAllUsage.totalAmount = 3000
-//
-//    dummyItems.append(dummyItem)
-//    dummyItems.append(dummyItem1)
-//    dummyItems.append(dummyItem2)
-//    dummyItems.append(dummyItem3)
-//    dummyItems.append(dummyItem4)
-//    dummyItems.append(dummyItem5)
-//    dummyItems.append(dummyItem6)
-//    dummyItems.append(dummyItem7)
-//    dummyItems.append(dummyItem8)
-//    dummyItems.append(dummyItem9)
-//    
-//    return DashView(items: dummyItems)
-//}
+#Preview {
+    DashView()
+}
