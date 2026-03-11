@@ -60,7 +60,7 @@ struct ProgressImageView:View {
                 Rectangle()
                     .colorInvert()
                     .clipShape(.capsule)
-                    .frame(width: 48,height: max(148 * progress, 0))
+                    .frame(width: 48,height: max(151 * progress, 0))
                     .animation(.linear,value: 0.5)
                     .padding(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
                     .glassEffect(.regular)
@@ -104,6 +104,6 @@ struct TextDesc: View {
 
 #Preview {
     let dummyItem: Item = Item(name: "Dummy", target: 200, type: .increasing)
-    dummyItem.dailyUsage = 93.3876
+    dummyItem.dailyUsage = 200
     return ItemContainer(item: dummyItem)
 }
